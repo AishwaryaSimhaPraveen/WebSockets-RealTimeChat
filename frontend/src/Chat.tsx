@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  AppBar,
+  Toolbar,
   Box,
   TextField,
   Typography,
   Button,
   Paper,
   Stack,
+  Container,
 } from "@mui/material";
 
 const Chat = () => {
@@ -14,6 +17,7 @@ const Chat = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [someoneTyping, setSomeoneTyping] = useState("");
   const socketRef = useRef<WebSocket | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -30,7 +34,7 @@ const Chat = () => {
         const typer = data.replace("__typing__", "");
         if (typer !== username) {
           setSomeoneTyping(`${typer} is typing...`);
-          setTimeout(() => setSomeoneTyping(""), 5000);
+          setTimeout(() => setSomeoneTyping(""), 3000);
         }
         return;
       }
@@ -44,6 +48,10 @@ const Chat = () => {
 
     return () => socketRef.current?.close();
   }, [username]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const sendMessage = () => {
     if (message.trim() && username.trim()) {
@@ -62,61 +70,83 @@ const Chat = () => {
   };
 
   return (
-    <Box sx={{ p: 4, maxWidth: 600, margin: "auto" }}>
-      <Typography variant="h4" gutterBottom>
-        💬 Real-Time Chat
-      </Typography>
+    <>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6">Real-Time Chat</Typography>
+        </Toolbar>
+      </AppBar>
 
-      <TextField
-        fullWidth
-        label="Your Name"
-        value={username}
-        onChange={(e) => {
-          const value = e.target.value;
-          setUsername(value);
-          localStorage.setItem("username", value);
-        }}
-        sx={{ mb: 2 }}
-      />
-
-      {someoneTyping && (
-        <Typography
-          variant="body2"
-          sx={{ color: "gray", fontStyle: "italic", mb: 1 }}
-        >
-          {someoneTyping}
-        </Typography>
-      )}
-
-      <Paper
-        elevation={3}
+      <Box
         sx={{
-          height: 300,
-          overflowY: "scroll",
-          p: 2,
-          mb: 2,
-          backgroundColor: "#f5f5f5",
+          minHeight: "100vh",
+          bgcolor: "#f0f2f5",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 2,
         }}
       >
-        <Stack spacing={1}>
-          {messages.map((msg, idx) => (
-            <Typography key={idx}>{msg}</Typography>
-          ))}
-        </Stack>
-      </Paper>
+        <Paper elevation={4} sx={{ width: "100%", maxWidth: 600, padding: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            Welcome to the Chat Room
+          </Typography>
 
-      <Stack direction="row" spacing={2}>
-        <TextField
-          fullWidth
-          label="Type your message"
-          value={message}
-          onChange={handleTyping}
-        />
-        <Button variant="contained" onClick={sendMessage}>
-          Send
-        </Button>
-      </Stack>
-    </Box>
+          <TextField
+            fullWidth
+            label="Your Name"
+            value={username}
+            onChange={(e) => {
+              const value = e.target.value;
+              setUsername(value);
+              localStorage.setItem("username", value);
+            }}
+            sx={{ mb: 2 }}
+          />
+
+          {someoneTyping && (
+            <Typography
+              variant="body2"
+              sx={{ color: "gray", fontStyle: "italic", mb: 1, ml: 1 }}
+            >
+              {someoneTyping}
+            </Typography>
+          )}
+
+          <Paper
+            elevation={1}
+            sx={{
+              height: 300,
+              overflowY: "scroll",
+              p: 2,
+              mb: 2,
+              backgroundColor: "#fafafa",
+              border: "1px solid #ddd",
+            }}
+          >
+            <Stack spacing={1}>
+              {messages.map((msg, idx) => (
+                <Typography key={idx}>{msg}</Typography>
+              ))}
+              <div ref={messagesEndRef} />
+            </Stack>
+          </Paper>
+
+          <Stack direction="row" spacing={1}>
+            <TextField
+              fullWidth
+              label="Type your message"
+              value={message}
+              onChange={handleTyping}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            />
+            <Button variant="contained" onClick={sendMessage}>
+              Send
+            </Button>
+          </Stack>
+        </Paper>
+      </Box>
+    </>
   );
 };
 
