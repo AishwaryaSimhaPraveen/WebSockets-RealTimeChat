@@ -44,6 +44,13 @@ app.get("/messages", (req, res) => {
   res.json(messageHistory);
 });
 
+
+app.delete("/messages", (req, res) => {
+  messageHistory = [];
+  res.status(200).json({ success: true, message: "Chat cleared." });
+});
+
+
 server.listen(PORT, () => {
   console.log(`✅ WebSocket server running on ws://localhost:${PORT}`);
 });

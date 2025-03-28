@@ -8,7 +8,6 @@ import {
   Button,
   Paper,
   Stack,
-  Container,
 } from "@mui/material";
 
 const Chat = () => {
@@ -18,6 +17,12 @@ const Chat = () => {
   const [someoneTyping, setSomeoneTyping] = useState("");
   const socketRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const clearChat = () => {
+    fetch("http://localhost:3001/messages", { method: "DELETE" }).then(() =>
+      setMessages([])
+    );
+  };
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -142,6 +147,20 @@ const Chat = () => {
             />
             <Button variant="contained" onClick={sendMessage}>
               Send
+            </Button>
+            <Button
+              variant="contained"
+              onClick={clearChat}
+              sx={{
+                backgroundColor: "#ff4d4d",
+                color: "#fff",
+                "&:hover": {
+                  backgroundColor: "#cc0000",
+                },
+                minWidth: 120,
+              }}
+            >
+              Clear Chat
             </Button>
           </Stack>
         </Paper>
