@@ -9,7 +9,7 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-
+import React from "react";
 const Chat = () => {
   const [username, setUsername] = useState("");
   const [message, setMessage] = useState("");
